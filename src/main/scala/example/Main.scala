@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Properties
 import scala.concurrent.duration._
 import scala.jdk.DurationConverters._
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import cats.syntax.all._
 import cats.effect.{ IO, IOApp }
 import domain._
@@ -20,6 +21,8 @@ import org.apache.kafka.streams.{ Topology, StreamsConfig }
 import org.apache.kafka.streams.KafkaStreams
 
 object Main extends IOApp.Simple {
+
+  implicit val logger = Slf4jLogger.getLogger[IO]
 
   // Topology builder
   val builder = new StreamsBuilder

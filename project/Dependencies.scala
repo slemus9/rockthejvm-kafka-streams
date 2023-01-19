@@ -8,6 +8,8 @@ object Dependencies {
     val kafka = "3.3.1"
     val fs2kafka = "3.0.0-M8"
     val circe = "0.14.3"
+    val log4cats = "2.5.0"
+    val logback = "1.4.3"
   }
 
   object Library {
@@ -24,5 +26,8 @@ object Dependencies {
     val circeCore = "io.circe" %% "circe-core" % Version.circe
     val circeGeneric = "io.circe" %% "circe-generic" % Version.circe
     val circeParser = "io.circe" %% "circe-parser" % Version.circe
+
+    val log4cats = "org.typelevel" %% "log4cats-slf4j" % Version.log4cats
+    val logback = "ch.qos.logback" % "logback-classic" % Version.logback % Runtime
   }
 }

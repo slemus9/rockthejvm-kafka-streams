@@ -7,9 +7,8 @@ import org.apache.kafka.common.errors.TopicExistsException
 import scala.jdk.CollectionConverters._
 import cats.syntax.all._
 import cats.ApplicativeThrow
-import cats.effect.Async
+import cats.effect.{ Async, Resource }
 import fs2.kafka.AdminClientSettings
-import cats.effect.kernel.Resource
 
 final case class KafkaResource[F[_] : ApplicativeThrow](
   private val admin: KafkaAdminClient[F]

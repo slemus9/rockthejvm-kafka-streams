@@ -12,5 +12,7 @@ libraryDependencies ++= Seq(
   Library.fs2Kafka,
   Library.circeCore,
   Library.circeGeneric,
-  Library.circeParser
+  Library.circeParser,
+  Library.log4cats,
+  Library.logback
 )
