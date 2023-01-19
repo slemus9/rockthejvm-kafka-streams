@@ -5,6 +5,8 @@ import java.time.temporal.ChronoUnit
 import java.util.Properties
 import scala.concurrent.duration._
 import scala.jdk.DurationConverters._
+import cats.syntax.all._
+import cats.effect.{ IO, IOApp }
 import domain._
 import serdes.implicits._
 import io.circe.generic.auto._
@@ -17,7 +19,7 @@ import org.apache.kafka.streams.kstream.{ GlobalKTable, JoinWindows, TimeWindows
 import org.apache.kafka.streams.{ Topology, StreamsConfig }
 import org.apache.kafka.streams.KafkaStreams
 
-object Main extends App {
+object Main extends IOApp.Simple {
 
   // Topology builder
   val builder = new StreamsBuilder
@@ -135,14 +137,29 @@ object Main extends App {
   props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.bootstrapServers)
   props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.stringSerde.getClass)
   
-  val app = new KafkaStreams(topology, props)
+  // val app = new KafkaStreams(topology, props)
 
-  println(topology.describe())
-  app.start()
+  // println(topology.describe())
+  // app.start()
+
+  def run: IO[Unit] = 
+    KafkaResource
+      .make[IO](config.bootstrapServers)
+      .use { admin => 
+        admin.createSimpleTopics(List(
+          topics.OrdersByUserTopic,
+          topics.OrdersTopic,
+          topics.PaymentsTopic,
+          topics.PaidOrdersTopic
+        )) >> admin.createSimpleCompactTopics(List(
+          topics.DiscountProfilesByUserTopic,
+          topics.DiscountsTopic
+        )) >> KafkaStreamsApp.start[IO](topology, props)
+      }
 }
 
 object config {
 
   val applicationId = "orders-application"
-  val bootstrapServers = "0.0.0.0:9090"
+  val bootstrapServers = "0.0.0.0:9092"
 }

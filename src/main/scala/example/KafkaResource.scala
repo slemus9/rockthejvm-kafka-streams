@@ -7,7 +7,9 @@ import org.apache.kafka.common.errors.TopicExistsException
 import scala.jdk.CollectionConverters._
 import cats.syntax.all._
 import cats.ApplicativeThrow
-
+import cats.effect.Async
+import fs2.kafka.AdminClientSettings
+import cats.effect.kernel.Resource
 
 final case class KafkaResource[F[_] : ApplicativeThrow](
   private val admin: KafkaAdminClient[F]
@@ -35,4 +37,15 @@ final case class KafkaResource[F[_] : ApplicativeThrow](
       .recoverWith {
         case _: TopicExistsException => ().pure
       }
+}
+
+object KafkaResource {
+
+  def make[F[_] : Async](
+    bootstrapServers: String
+  ): Resource[F, KafkaResource[F]] = 
+    KafkaAdminClient
+      .resource(AdminClientSettings(bootstrapServers))
+      .map(KafkaResource(_))
+      
 }
