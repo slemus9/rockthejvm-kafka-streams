@@ -5,7 +5,6 @@ import java.time.temporal.ChronoUnit
 import java.util.Properties
 import scala.concurrent.duration._
 import scala.jdk.DurationConverters._
-import cats.effect.{ IO, IOApp }
 import domain._
 import serdes.implicits._
 import io.circe.generic.auto._
@@ -16,8 +15,9 @@ import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.kstream._
 import org.apache.kafka.streams.kstream.{ GlobalKTable, JoinWindows, TimeWindows, Windowed }
 import org.apache.kafka.streams.{ Topology, StreamsConfig }
+import org.apache.kafka.streams.KafkaStreams
 
-object Main extends IOApp.Simple {
+object Main extends App {
 
   // Topology builder
   val builder = new StreamsBuilder
@@ -124,18 +124,21 @@ object Main extends IOApp.Simple {
       .flatMapValues { _.toList }
   }
 
+  paidOrders.to(topics.PaidOrdersTopic)
+
   // Topology
   val topology: Topology = builder.build()
 
   // Application
-  def run: IO[Unit] = {
-    val props = new Properties
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, config.applicationId)
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.bootstrapServers)
-    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.stringSerde.getClass)
-    
-    IO.println(topology)
-  }
+  val props = new Properties
+  props.put(StreamsConfig.APPLICATION_ID_CONFIG, config.applicationId)
+  props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.bootstrapServers)
+  props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.stringSerde.getClass)
+  
+  val app = new KafkaStreams(topology, props)
+
+  println(topology.describe())
+  app.start()
 }
 
 object config {
