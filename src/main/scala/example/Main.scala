@@ -154,7 +154,7 @@ object Main extends IOApp.Simple {
         )) >> admin.createSimpleCompactTopics(List(
           topics.DiscountProfilesByUserTopic,
           topics.DiscountsTopic
-        )) >> KafkaStreamsApp.start[IO](topology, props)
+        )) >> KafkaStreamsApp.start[IO](topology, props, 2.seconds)
       }
 }
 
