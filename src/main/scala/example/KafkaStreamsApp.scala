@@ -30,10 +30,10 @@ object KafkaStreamsApp {
         F.async_[Unit] { cb => 
 
           app.setStateListener { 
-            case (_, KState.ERROR) => cb(
+            case (KState.ERROR, _) => cb(
               new RuntimeException("KafkaStreams application entered into an error state").asLeft
             )
-            case (_, KState.NOT_RUNNING) =>
+            case (KState.NOT_RUNNING, _) =>
               cb(().asRight)
             case _ => ()
           }
