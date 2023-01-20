@@ -41,6 +41,8 @@ object KafkaStreamsApp {
           app.setUncaughtExceptionHandler { (_, e) => 
             cb(e.asLeft)
           }
+
+          app.start()
         }  
       )
       
